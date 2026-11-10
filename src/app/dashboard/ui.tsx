@@ -1,7 +1,7 @@
 'use client';
 import {useEffect,useMemo,useState} from 'react';
 import {Area,AreaChart,CartesianGrid,ResponsiveContainer,Tooltip,XAxis,YAxis} from 'recharts';
-import {Activity,ArrowDownToLine,Bell,ChartNoAxesCombined,Database,Globe,LogOut,Menu,RefreshCw,Settings,Wallet,FileText,PanelsTopLeft,Plus,ShieldCheck,Smartphone,Network,Grid2X2,FileSpreadsheet} from 'lucide-react';
+import {Activity,ArrowDownToLine,Bell,ChartNoAxesCombined,Eye,Send,Database,Globe,LogOut,Menu,RefreshCw,Settings,Wallet,FileText,PanelsTopLeft,Plus,ShieldCheck,Smartphone,Network,Grid2X2,FileSpreadsheet} from 'lucide-react';
 
 type App={id:string,name:string,packageName:string,currency:string,enabled:boolean};
 type Series={date:string,amount:number,currency:string,application:string};
