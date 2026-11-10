@@ -12,6 +12,7 @@ services:
       - "3000"
     environment:
       NODE_ENV: production
+      HOSTNAME: 0.0.0.0
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Coolify}@db:5432/t2dev_monetization?schema=public
       AUTH_SECRET: ${AUTH_SECRET:?Set AUTH_SECRET in Coolify}
       ADMIN_USERNAME: ${ADMIN_USERNAME:?Set ADMIN_USERNAME in Coolify}
