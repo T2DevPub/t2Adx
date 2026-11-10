@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Application {
+  id             String   @id @default(cuid())
+  name           String
+  packageName    String   @unique
+  gamobAppId     String?
+  appOs          String?
+  appStatus      String?
+  currency       String   @default("USD")
+  timezone       String   @default("Asia/Kolkata")
+  enabled        Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  revenue        RevenueDaily[]
+  metrics        AdMetricDaily[]
+  countries      CountryMetric[]
+  payments       Payment[]
+  syncJobs       SyncJob[]
+  breakdowns     GamobBreakdown[]
+  adUnits        AdUnit[]
+}
+
+model RevenueDaily {
+  id             String   @id @default(cuid())
+  applicationId  String
+  date           DateTime
+  amount         Decimal  @db.Decimal(38, 20)
+  currency       String
+  source         String   @default("GAMOB")
+  rawPayload     Json?
+  updatedAt      DateTime @updatedAt
+  application    Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  @@unique([applicationId, date, currency])
+  @@index([date])
+}
+
+model AdMetricDaily {
+  id             String   @id @default(cuid())
+  applicationId  String
+  date           DateTime
+  impressions    BigInt?
+  requests       BigInt?
+  clicks         BigInt?
+  matchedRequests BigInt?
+  ecpm           Decimal? @db.Decimal(38, 20)
+  fillRate       Decimal? @db.Decimal(12, 6)
+  ctr            Decimal? @db.Decimal(12, 6)
+  showRate       Decimal? @db.Decimal(12, 6)
+  cpc            Decimal? @db.Decimal(38, 20)
+  rawPayload     Json?
+  updatedAt      DateTime @updatedAt
+  application    Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  @@unique([applicationId, date])
+  @@index([date])
+}
+
+model CountryMetric {
+  id             String   @id @default(cuid())
+  applicationId  String
+  date           DateTime
+  countryCode    String
+  countryName    String
+  revenue        Decimal? @db.Decimal(38, 20)
+  currency       String
+  impressions    BigInt?
+  clicks         BigInt?
+  ecpm           Decimal? @db.Decimal(38, 20)
+  rawPayload     Json?
+  updatedAt      DateTime @updatedAt
+  application    Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  @@unique([applicationId, date, countryCode, currency])
+}
+
+model Payment {
+  id             String   @id @default(cuid())
+  applicationId  String
+  amount         Decimal  @db.Decimal(38, 20)
+  currency       String
+  paidAt         DateTime
+  reference      String?
+  method         String?
+  notes          String?
+  createdAt      DateTime @default(now())
+  application    Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  @@index([applicationId, paidAt])
+}
+
+model SyncJob {
+  id             String   @id @default(cuid())
+  applicationId  String?
+  status         String
+  startedAt      DateTime @default(now())
+  finishedAt     DateTime?
+  recordsFetched Int      @default(0)
+  message        String?
+  details        Json?
+  application    Application? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+  @@index([startedAt])
+}
+
+
+model GamobCredential {
+  id                    String   @id @default("primary")
+  accessTokenEncrypted  String
+  refreshTokenEncrypted String
+  expiresAt             DateTime
+  updatedAt             DateTime @updatedAt
+}
+
+model GamobBreakdown {
+  id             String   @id @default(cuid())
+  applicationId  String
+  date           DateTime
+  breakdownType  String
+  breakdownKey   String
+  label          String
+  dimensions     Json
+  metrics        Json
+  updatedAt      DateTime @updatedAt
+  application    Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  @@unique([applicationId, date, breakdownType, breakdownKey])
+  @@index([date, breakdownType])
+}
+
+
+model AdUnit {
+  id             String   @id @default(cuid())
+  gamobAdId      String   @unique
+  adName         String
+  adUnitId       String?
+  adSize         String?
+  adStatus       String?
+  applicationId  String
+  rawPayload     Json?
+  updatedAt      DateTime @updatedAt
+  application    Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  @@index([applicationId])
+}
+
+
+model AuthLoginAttempt {
+  id              String   @id @default(cuid())
+  ipHash          String   @unique
+  failures        Int      @default(0)
+  windowStartedAt DateTime @default(now())
+  blockedUntil    DateTime?
+  updatedAt       DateTime @updatedAt
+  @@index([blockedUntil])
+}

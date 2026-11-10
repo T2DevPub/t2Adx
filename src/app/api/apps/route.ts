@@ -1,0 +1,4 @@
+import { NextResponse } from 'next/server'; import { isAdmin } from '@/lib/auth'; import { prisma } from '@/lib/prisma'; import { z } from 'zod';
+const schema=z.object({name:z.string().min(1),packageName:z.string().min(3),gamobAppId:z.string().optional(),currency:z.string().length(3).default('USD'),timezone:z.string().default('Asia/Kolkata')});
+export async function GET(){if(!await isAdmin())return NextResponse.json({error:'Unauthorized'},{status:401});return NextResponse.json(await prisma.application.findMany({orderBy:{createdAt:'asc'}}));}
+export async function POST(req:Request){if(!await isAdmin())return NextResponse.json({error:'Unauthorized'},{status:401});try{const b=schema.parse(await req.json());return NextResponse.json(await prisma.application.create({data:b}),{status:201});}catch(e){return NextResponse.json({error:e instanceof Error?e.message:'Invalid input'},{status:400});}}

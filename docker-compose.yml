@@ -1,0 +1,54 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    expose:
+      - "3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Coolify}@db:5432/t2dev_monetization?schema=public
+      AUTH_SECRET: ${AUTH_SECRET:?Set AUTH_SECRET in Coolify}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:?Set ADMIN_USERNAME in Coolify}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in Coolify}
+      SYNC_SECRET: ${SYNC_SECRET:?Set SYNC_SECRET in Coolify}
+      GAMOB_EMAIL: ${GAMOB_EMAIL:-}
+      GAMOB_PASSWORD: ${GAMOB_PASSWORD:-}
+      GAMOB_API_KEY: ${GAMOB_API_KEY:-}
+      GAMOB_SYNC_INTERVAL_MINUTES: ${GAMOB_SYNC_INTERVAL_MINUTES:-15}
+      GAMOB_INITIAL_HISTORY_MONTHS: ${GAMOB_INITIAL_HISTORY_MONTHS:-12}
+      GAMOB_TIMEOUT_MS: ${GAMOB_TIMEOUT_MS:-30000}
+      GAMOB_REPORT_CURRENCY: ${GAMOB_REPORT_CURRENCY:-USD}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Kolkata}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: t2dev_monetization
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Coolify}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d t2dev_monetization"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
