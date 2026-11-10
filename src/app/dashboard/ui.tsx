@@ -3,7 +3,7 @@ import {useEffect,useMemo,useState} from 'react';
 import {Area,AreaChart,CartesianGrid,ResponsiveContainer,Tooltip,XAxis,YAxis} from 'recharts';
 import {Activity,ArrowDownToLine,Bell,ChartNoAxesCombined,Eye,Send,Database,Globe,LogOut,Menu,RefreshCw,Settings,Wallet,FileText,PanelsTopLeft,Plus,ShieldCheck,Smartphone,Network,Grid2X2,FileSpreadsheet} from 'lucide-react';
 
-type App={id:string,name:string,packageName:string,currency:string,enabled:boolean};
+type App={id:string,name:string,packageName:string,gamobAppId?:string|null,currency:string,enabled:boolean};
 type Series={date:string,amount:number,currency:string,application:string};
 const nav=[{label:'WORKSPACE',items:[['Overview',Grid2X2],['Applications',Smartphone]]},{label:'ANALYTICS',items:[['Revenue Analytics',ChartNoAxesCombined],['Ad Performance',Activity],['Ad Formats',PanelsTopLeft],['Demand Channels',Network],['Countries',Globe]]},{label:'FINANCE & REPORTS',items:[['Reconciliation',Wallet],['Reports',FileText]]},{label:'SYSTEM',items:[['Alerts',Bell],['API Monitoring',Database],['Settings',Settings]]}] as const;
 export default function Dashboard(){
